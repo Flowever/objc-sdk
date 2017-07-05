@@ -4,15 +4,17 @@
 
   },
   "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
-    "E55CF83B90BF31E6ED4660B04513F3BFED9CBB8E" : 0,
     "0A02D7AD172CD0FE10B50DDED69BA407037CC7BF" : 0,
-    "D1F9F70025FA660182F75266D3D4F5D7ECED2B2C" : 0
+    "E55CF83B90BF31E6ED4660B04513F3BFED9CBB8E" : 0,
+    "D1F9F70025FA660182F75266D3D4F5D7ECED2B2C" : 0,
+    "F01F11CE09206CC0D3E55596507EC008DF577AB7" : 9223372036854775807
   },
   "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "9CA117F5-83AD-4CBC-90C0-7D2EB9317745",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
-    "E55CF83B90BF31E6ED4660B04513F3BFED9CBB8E" : "leancloud-objc-sdk\/",
     "0A02D7AD172CD0FE10B50DDED69BA407037CC7BF" : "iOS-sdk\/Breakpad\/",
-    "D1F9F70025FA660182F75266D3D4F5D7ECED2B2C" : "iOS-sdk\/"
+    "E55CF83B90BF31E6ED4660B04513F3BFED9CBB8E" : "objc-sdk\/",
+    "D1F9F70025FA660182F75266D3D4F5D7ECED2B2C" : "iOS-sdk\/",
+    "F01F11CE09206CC0D3E55596507EC008DF577AB7" : "Common\/"
   },
   "DVTSourceControlWorkspaceBlueprintNameKey" : "AVOS",
   "DVTSourceControlWorkspaceBlueprintVersion" : 204,
@@ -32,6 +34,11 @@
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:leancloud\/objc-sdk.git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "E55CF83B90BF31E6ED4660B04513F3BFED9CBB8E"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "git.flowever.net:component\/Common.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "F01F11CE09206CC0D3E55596507EC008DF577AB7"
     }
   ]
 }
