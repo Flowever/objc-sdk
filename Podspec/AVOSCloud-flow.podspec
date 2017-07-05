@@ -1,5 +1,6 @@
 Pod::Spec.new do |s|
-  s.name     = 'AVOSCloud'
+  s.name     = 'AVOSCloud-flow'
+  s.module_name = 'AVOSCloud'
   s.version  = '6.1.0'
   s.homepage = 'https://leancloud.cn/'
   s.summary  = 'LeanCloud Objective-C SDK'
@@ -19,8 +20,8 @@ Pod::Spec.new do |s|
   s.requires_arc = true
 
   s.source = {
-    :git => "https://github.com/leancloud/objc-sdk.git",
-    :tag => "#{s.version}"
+    :git => "git@github.com:Flowever/objc-sdk.git",
+    :tag => "#{s.version}-flow"
   }
 
   s.source_files =

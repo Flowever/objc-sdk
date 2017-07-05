@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby
+h#!/usr/bin/env ruby
 # SDK deployment script
 #
 # Created by Tang Tianyong on 07/14/16.
