@@ -49,9 +49,9 @@
     return path;
 }
 
-// ~/Documents/LeanCloud
+// ~/Library/LeanCloud
 + (NSString *)leanDocumentPath {
-    NSString *path = [self appDocumentPath];
+    NSString *path = [self libraryDirectory];
     
     path = [path stringByAppendingPathComponent:LCRootDirName];
     
@@ -60,12 +60,12 @@
     return path;
 }
 
-// ~/Documents/LeanCloud/keyvalue
+// ~/Library/LeanCloud/keyvalue
 + (NSString *)keyValueDatabasePath {
     return [[self leanDocumentPath] stringByAppendingPathComponent:@"keyvalue"];
 }
 
-// ~/Documents/LeanCloud/CommandCache
+// ~/Library/LeanCloud/CommandCache
 + (NSString *)commandCacheDatabasePath {
     return [[self leanDocumentPath] stringByAppendingPathComponent:@"CommandCache"];
 }
