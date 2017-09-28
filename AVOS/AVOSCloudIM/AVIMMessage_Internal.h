@@ -38,6 +38,11 @@
 @property (nonatomic, assign) BOOL transient;
 
 /*!
+ The message update time.
+ */
+@property (nonatomic, strong) NSDate *updatedAt;
+
+/*!
  * Payload of current message, it is a JSON string or plain text message
  */
 - (NSString *)payload;
@@ -60,5 +65,8 @@
 @property (nonatomic, assign) int64_t sendTimestamp;
 @property (nonatomic, assign) int64_t deliveredTimestamp;
 @property (nonatomic, assign) int64_t readTimestamp;
+
+/* Sequence number in cache store. */
+@property (nonatomic, assign) long long seq;
 
 @end

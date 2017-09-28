@@ -17,6 +17,7 @@
 @class AVIMTypedMessage;
 @class AVIMConversationQuery;
 @class AVIMClientOpenOption;
+@class AVUser;
 
 @protocol AVIMClientDelegate;
 
@@ -66,6 +67,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readonly, nullable) NSString *clientId;
 
 /**
+ The user that you login as a client.
+ */
+@property (nonatomic, strong, readonly, nullable) AVUser *user;
+
+/**
  * Tag of current client.
  * @brief If tag is not nil and "default", offline mechanism is enabled.
  * @discussion If one client id login on two different devices, previous opened client will be gone offline by later opened client.
@@ -96,29 +102,48 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype)initWithClientId:(NSString *)clientId tag:(nullable NSString *)tag;
 
 /*!
- 默认 AVIMClient 实例
- @return AVIMClient 实例
+ Initializes client with an user.
+
+ @seealso It's a convenience initializer of <code>-[AVIMClient initWithUser:tag:]</code>
  */
-+ (instancetype)defaultClient;
+- (instancetype)initWithUser:(AVUser *)user;
+
+/*!
+ Initializes client with an user and a tag.
+
+ This method allows you to use an user as a client to login to IM.
+ Using user as an IM client has some extra benifits. For example, It will activate
+ login signature to improve security. Besides that, you can also take advantage of
+ the friendship relations of users.
+
+ @note You should enable login signature option in application console before you call this method.
+
+ @param user An user who has logged in.
+ @param tag  Tag of client.
+ */
+- (instancetype)initWithUser:(AVUser *)user tag:(nullable NSString *)tag;
 
 /*!
  * 设置用户选项。
  * 该接口用于控制 AVIMClient 的一些细节行为。
  * @param userOptions 用户选项。
  */
-+ (void)setUserOptions:(NSDictionary *)userOptions;
++ (void)setUserOptions:(NSDictionary *)userOptions AVIM_DEPRECATED("Deprecated in v5.1.0. Do not use it any more.");
+
+/*!
+ Set what server will issues for offline messages when client did login.
+
+ @param enabled Set `YES` if you want server just issues the count of offline messages in each conversation.
+                Set `NO` if you want server issues concrete offline messages.
+                Defaults to `NO`.
+ */
++ (void)setUnreadNotificationEnabled:(BOOL)enabled;
 
 /*!
  * 设置实时通信的超时时间，默认 15 秒。
  * @param seconds 超时时间，单位是秒。
  */
 + (void)setTimeoutIntervalInSeconds:(NSTimeInterval)seconds;
-
-/*!
- 重置默认 AVIMClient 实例
- 置后再调用 +defaultClient 将返回新的实例
- */
-+ (void)resetDefaultClient;
 
 /*!
  开启某个账户的聊天
@@ -309,13 +334,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface AVIMClient (AVDeprecated)
-
-- (void)openWithClientId:(NSString *)clientId
-                callback:(AVIMBooleanResultBlock)callback AVIM_DEPRECATED("Deprecated in AVOSCloudIM SDK 3.1.7.2. Use -[AVIMClient openWithCallback:] or -[AVIMClient openWithOption:callback:] instead.");
-
-- (void)openWithClientId:(NSString *)clientId
-                     tag:(nullable NSString *)tag
-                callback:(AVIMBooleanResultBlock)callback AVIM_DEPRECATED("Deprecated in AVOSCloudIM SDK 3.1.7.2. Use -[AVIMClient openWithCallback:] or -[AVIMClient openWithOption:callback:] instead.");
 
 @end
 

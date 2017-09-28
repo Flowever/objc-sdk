@@ -13,6 +13,7 @@
 #import "AVIMKeyedConversation.h"
 #import "AVIMAvailability.h"
 #import "AVIMMessageOption.h"
+#import "AVIMRecalledMessage.h"
 
 @class AVIMClient;
 
@@ -28,6 +29,51 @@ enum : AVIMMessageSendOption {
 } AVIM_DEPRECATED("Deprecated in AVOSCloudIM SDK 3.4.0. Use AVIMMessageOption instead.");
 
 NS_ASSUME_NONNULL_BEGIN
+
+@interface AVIMMessageIntervalBound : NSObject
+
+@property (nonatomic,   copy, nullable) NSString *messageId;
+@property (nonatomic, assign) int64_t timestamp;
+@property (nonatomic, assign) BOOL closed;
+
+- (instancetype)initWithMessageId:(nullable NSString *)messageId
+                        timestamp:(int64_t)timestamp
+                           closed:(BOOL)closed;
+
+@end
+
+@interface AVIMMessageInterval : NSObject
+
+@property (nonatomic, strong) AVIMMessageIntervalBound *startIntervalBound;
+@property (nonatomic, strong, nullable) AVIMMessageIntervalBound *endIntervalBound;
+
+- (instancetype)initWithStartIntervalBound:(AVIMMessageIntervalBound *)startIntervalBound
+                          endIntervalBound:(nullable AVIMMessageIntervalBound *)endIntervalBound;
+
+@end
+
+/**
+ Enumerations that define message query direction.
+ */
+typedef NS_ENUM(NSInteger, AVIMMessageQueryDirection) {
+    AVIMMessageQueryDirectionFromNewToOld = 0,
+    AVIMMessageQueryDirectionFromOldToNew
+};
+
+/**
+ A protocol defines callbacks of events related to conversation.
+ */
+@protocol AVIMConversationDelegate <NSObject>
+
+/**
+ Callback which called when a message has been updated.
+
+ @param conversation The conversation which the message belongs to.
+ @param message      The new message which has been updated.
+ */
+- (void)conversation:(AVIMConversation *)conversation messageHasBeenUpdated:(AVIMMessage *)message;
+
+@end
 
 @interface AVIMConversation : NSObject
 
@@ -83,6 +129,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readonly)           NSUInteger    unreadMessagesCount;
 
 /**
+ *  A flag indicates whether an unread message mentioned you.
+ */
+@property (nonatomic, assign) BOOL unreadMessagesMentioned;
+
+/**
  *  The name of this conversation. Can be changed by update:callback: .
  */
 @property (nonatomic, copy, readonly, nullable) NSString     *name;
@@ -114,6 +165,20 @@ NS_ASSUME_NONNULL_BEGIN
  *  The AVIMClient object which this conversation belongs to.
  */
 @property (nonatomic, weak, readonly, nullable)   AVIMClient   *imClient;
+
+/**
+ Add a delegate which listens conversation events.
+
+ @param delegate An object which listens conversation events.
+ */
+- (void)addDelegate:(id<AVIMConversationDelegate>)delegate;
+
+/**
+ Remove a delegate which is listening conversation events.
+
+ @param delegate The delegate object you want to remove.
+ */
+- (void)removeDelegate:(id<AVIMConversationDelegate>)delegate;
 
 /**
  * Add custom property for conversation.
@@ -268,6 +333,37 @@ NS_ASSUME_NONNULL_BEGIN
            callback:(AVIMBooleanResultBlock)callback;
 
 /*!
+ Replace a message you sent with a new message.
+
+ @param oldMessage The message you've sent which will be replaced by newMessage.
+ @param newMessage A new message.
+ @param callback   Callback of message update.
+ */
+- (void)updateMessage:(AVIMMessage *)oldMessage toNewMessage:(AVIMMessage *)newMessage callback:(AVIMBooleanResultBlock)callback;
+
+/*!
+ Recall a message.
+
+ @param oldMessage The message you've sent which will be replaced by newMessage.
+ @param callback   Callback of message update.
+ */
+- (void)recallMessage:(AVIMMessage *)oldMessage callback:(void(^)(BOOL succeeded, NSError * _Nullable error, AVIMRecalledMessage * _Nullable recalledMessage))callback;
+
+/*!
+ Add a message to cache.
+
+ @param message The message to be cached.
+ */
+- (void)addMessageToCache:(AVIMMessage *)message;
+
+/*!
+ Remove a message from cache.
+
+ @param message The message which you want to remove from cache.
+ */
+- (void)removeMessageFromCache:(AVIMMessage *)message;
+
+/*!
  从服务端拉取该会话的最近 limit 条消息。
  @param limit 返回结果的数量，默认 20 条，最多 1000 条。
  @param callback 查询结果回调。
@@ -301,6 +397,19 @@ NS_ASSUME_NONNULL_BEGIN
                     timestamp:(int64_t)timestamp
                         limit:(NSUInteger)limit
                      callback:(AVIMArrayResultBlock)callback;
+
+/**
+ Query messages from a message to an another message with specified direction applied.
+
+ @param interval  A message interval.
+ @param direction Direction of message query.
+ @param limit     Limit of messages you want to query.
+ @param callback  Callback of query request.
+ */
+- (void)queryMessagesInInterval:(AVIMMessageInterval *)interval
+                      direction:(AVIMMessageQueryDirection)direction
+                          limit:(NSUInteger)limit
+                       callback:(AVIMArrayResultBlock)callback;
 
 @end
 

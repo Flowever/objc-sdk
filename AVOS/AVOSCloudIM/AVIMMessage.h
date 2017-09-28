@@ -15,7 +15,8 @@ typedef NS_ENUM(int8_t, AVIMMessageMediaType) {
     kAVIMMessageMediaTypeAudio = -3,
     kAVIMMessageMediaTypeVideo = -4,
     kAVIMMessageMediaTypeLocation = -5,
-    kAVIMMessageMediaTypeFile = -6
+    kAVIMMessageMediaTypeFile = -6,
+    kAVIMMessageMediaTypeRecalled = -127
 };
 
 typedef NS_ENUM(int8_t, AVIMMessageIOType) {
@@ -59,6 +60,21 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, readonly, nullable) NSString *clientId;
 
 /*!
+ * A flag indicates whether this message mentions all members in conversation or not.
+ */
+@property (nonatomic, assign) BOOL mentionAll;
+
+/*!
+ * An ID list of clients who mentioned by this message.
+ */
+@property (nonatomic, strong, nullable) NSArray<NSString *> *mentionList;
+
+/*!
+ * Whether current client is mentioned by this message.
+ */
+@property (nonatomic, assign, readonly) BOOL mentioned;
+
+/*!
  * 消息所属对话的 id
  */
 @property (nonatomic, copy, readonly, nullable) NSString *conversationId;
@@ -87,6 +103,11 @@ NS_ASSUME_NONNULL_BEGIN
  * 是否是暂态消息
  */
 @property (nonatomic, assign, readonly) BOOL transient;
+
+/*!
+ The message update time.
+ */
+@property (nonatomic, strong, readonly) NSDate *updatedAt;
 
 - (nullable NSString *)payload;
 

@@ -17,6 +17,7 @@
 #import "AVOSCloud_Internal.h"
 #import "LCRouter.h"
 #import "SDMacros.h"
+#import "AVOSCloudIM.h"
 #import <arpa/inet.h>
 
 #define PING_INTERVAL 60*3
@@ -25,8 +26,6 @@
 #define LCIM_OUT_COMMAND_LOG_FORMAT \
     @"\n\n" \
     @"------ BEGIN LeanCloud IM Out Command ------\n" \
-    @"cmd: %@\n"                                      \
-    @"type: %@\n"                                     \
     @"content: %@\n"                                  \
     @"------ END ---------------------------------\n" \
     @"\n"
@@ -38,7 +37,7 @@
     @"------ END --------------------------------\n" \
     @"\n"
 
-static NSTimeInterval AVIMWebSocketDefaultTimeoutInterval = 15.0;
+static NSTimeInterval AVIMWebSocketDefaultTimeoutInterval = 30.0;
 
 typedef enum : NSUInteger {
     //mutually exclusive
@@ -53,9 +52,9 @@ typedef enum : NSUInteger {
     AVIMURLQueryOptionSortKeys = 16
 } AVIMURLQueryOptions;
 
-NSString *const AVIMProtocolPROTOBUF1 = @"lc.protobuf.1";
-NSString *const AVIMProtocolPROTOBUF2 = @"lc.protobuf.2";
-NSString *const AVIMProtocolPROTOBUF3 = @"lc.protobuf.3";
+NSString *const AVIMProtocolPROTOBUF1 = @"lc.protobuf2.1";
+NSString *const AVIMProtocolPROTOBUF2 = @"lc.protobuf2.2";
+NSString *const AVIMProtocolPROTOBUF3 = @"lc.protobuf2.3";
 
 @interface AVIMCommandCarrier : NSObject
 @property(nonatomic, strong) AVIMGenericCommand *command;
@@ -366,6 +365,13 @@ NSString *const AVIMProtocolPROTOBUF3 = @"lc.protobuf.3";
                 [[NSNotificationCenter defaultCenter] postNotificationName:AVIM_NOTIFICATION_WEBSOCKET_RECONNECT object:self userInfo:nil];
             }
 
+            NSString *RTMServer = [AVOSCloudIM defaultOptions].RTMServer;
+
+            if (RTMServer) {
+                [self internalOpenWebSocketConnection:RTMServer];
+                return;
+            }
+
             LCRouter *router = [LCRouter sharedInstance];
             NSDictionary *RTMServerTable = [router cachedRTMServerTable];
 
@@ -491,11 +497,6 @@ SecCertificateRef LCGetCertificateFromBase64String(NSString *base64);
         _webSocket = [[AVIMWebSocket alloc] initWithURLRequest:request];
     }
 
-    if (self.security) {
-        request.AVIM_SSLPinnedCertificates = [self pinnedCertificates];
-        _webSocket.SSLPinningMode = AVIMSSLPinningModePublicKey;
-    }
-
     _webSocket.delegate = self;
     [_webSocket open];
 }
@@ -590,9 +591,8 @@ SecCertificateRef LCGetCertificateFromBase64String(NSString *base64);
 }
 
 - (void)sendCommand:(AVIMGenericCommand *)genericCommand {
-    LCIMMessage *messageCommand = [genericCommand avim_messageCommand];
     BOOL needResponse = genericCommand.needResponse;
-    if (messageCommand && _webSocket.readyState == AVIM_OPEN) {
+    if (_webSocket.readyState == AVIM_OPEN) {
         if (needResponse) {
             [genericCommand avim_addOrRefreshSerialId];
             [self enqueueCommand:genericCommand];
@@ -625,7 +625,7 @@ SecCertificateRef LCGetCertificateFromBase64String(NSString *base64);
             [[NSNotificationCenter defaultCenter] postNotificationName:AVIM_NOTIFICATION_WEBSOCKET_ERROR object:self userInfo:@{@"error": error}];
         }
     }
-    AVLoggerInfo(AVLoggerDomainIM, LCIM_OUT_COMMAND_LOG_FORMAT, [AVIMCommandFormatter commandType:genericCommand.cmd], [genericCommand avim_messageClass], [genericCommand avim_description] );
+    AVLoggerInfo(AVLoggerDomainIM, LCIM_OUT_COMMAND_LOG_FORMAT, [genericCommand avim_description] );
 }
 
 - (void)sendPing {

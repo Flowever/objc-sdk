@@ -8,10 +8,11 @@
 
 #import "AVIMClient.h"
 #import "AVIMWebSocketWrapper.h"
+#import "LCIMConversationCache.h"
 
 @interface AVIMClient ()
 
-+ (NSDictionary *)userOptions;
++ (NSMutableDictionary *)userOptions;
 + (dispatch_queue_t)imClientQueue;
 + (BOOL)checkErrorForSignature:(AVIMSignature *)signature command:(AVIMGenericCommand *)command;
 + (void)_assertClientIdsIsValid:(NSArray *)clientIds;
@@ -28,6 +29,11 @@
 @property (nonatomic, assign) int32_t                openTimes;
 @property (nonatomic, copy)   NSString              *tag;
 @property (nonatomic, assign) BOOL                   onceOpened;
+
+@property (nonatomic, assign) int64_t                lastPatchTimestamp;
+@property (nonatomic, assign) int64_t                lastUnreadTimestamp;
+
+@property (nonatomic, strong) LCIMConversationCache *conversationCache;
 
 - (void)setStatus:(AVIMClientStatus)status;
 - (AVIMConversation *)conversationWithId:(NSString *)conversationId;

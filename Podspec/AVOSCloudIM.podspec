@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name     = 'AVOSCloudIM'
-  s.version  = '5.0.1'
+  s.version  = '7.3.0'
   s.homepage = 'https://leancloud.cn/'
   s.summary  = 'LeanCloud IM Objective-C SDK'
   s.authors  = 'LeanCloud'
@@ -31,6 +31,7 @@ Pod::Spec.new do |s|
       'AVOS/AVOSCloudIM/TypedMessages/AVIMTextMessage.h',
       'AVOS/AVOSCloudIM/Protobuf/LCIMDescriptor.h',
       'AVOS/AVOSCloudIM/Vendor/SocketRocket/AVIMWebSocket.h',
+      'AVOS/AVOSCloudIM/TypedMessages/AVIMRecalledMessage.h',
       'AVOS/AVOSCloudIM/Protobuf/LCIMDictionary.h',
       'AVOS/AVOSCloudIM/Protobuf/LCIMWireFormat.h',
       'AVOS/AVOSCloudIM/TypedMessages/AVIMLocationMessage.h',
@@ -84,6 +85,7 @@ Pod::Spec.new do |s|
       'AVOS/AVOSCloudIM/Protobuf/LCIMRootObject_PackagePrivate.h',
       'AVOS/AVOSCloudIM/AVMPMessagePack/AVMPDefines.h',
       'AVOS/AVOSCloudIM/Utilities/AVIMBlockHelper.h',
+      'AVOS/AVOSCloudIM/AVIMOptions.h',
       'AVOS/AVOSCloudIM/AVMPMessagePack/avmp.h',
       'AVOS/AVOSCloudIM/InternalObjects/AVIMTypedMessageObject.h',
       'AVOS/AVOSCloudIM/Commands/AVIMConversationOutCommand.h',
@@ -144,6 +146,7 @@ Pod::Spec.new do |s|
       'AVOS/AVOSCloudIM/AVMPMessagePack/AVMPOrderedDictionary.m',
       'AVOS/AVOSCloudIM/WebSocket/AVIMReachability.m',
       'AVOS/AVOSCloudIM/Utilities/AVIMBlockHelper.m',
+      'AVOS/AVOSCloudIM/AVIMOptions.m',
       'AVOS/AVOSCloudIM/AVIMMessageOption.m',
       'AVOS/AVOSCloudIM/Protobuf/google/protobuf/LCIMApi.pbobjc.m',
       'AVOS/AVOSCloudIM/AVIMClientOpenOption.m',
@@ -159,6 +162,7 @@ Pod::Spec.new do |s|
       'AVOS/AVOSCloudIM/TypedMessages/AVIMTypedMessage.m',
       'AVOS/AVOSCloudIM/Protobuf/LCIMDictionary.m',
       'AVOS/AVOSCloudIM/Commands/AVIMCommandFormatter.m',
+      'AVOS/AVOSCloudIM/TypedMessages/AVIMRecalledMessage.m',
       'AVOS/AVOSCloudIM/Protobuf/google/protobuf/LCIMFieldMask.pbobjc.m',
       'AVOS/AVOSCloudIM/MessageCache/LCIMConversationCache.m',
       'AVOS/AVOSCloudIM/AVIMConversationQuery.m',
@@ -196,6 +200,7 @@ Pod::Spec.new do |s|
       'AVOS/AVOSCloudIM/AVIMKeyedConversation.h',
       'AVOS/AVOSCloudIM/AVIMConversationQuery.h',
       'AVOS/AVOSCloudIM/TypedMessages/AVIMTextMessage.h',
+      'AVOS/AVOSCloudIM/TypedMessages/AVIMRecalledMessage.h',
       'AVOS/AVOSCloudIM/TypedMessages/AVIMLocationMessage.h',
       'AVOS/AVOSCloudIM/TypedMessages/AVIMAudioMessage.h',
       'AVOS/AVOSCloudIM/TypedMessages/AVIMVideoMessage.h',
@@ -210,6 +215,7 @@ Pod::Spec.new do |s|
       'AVOS/AVOSCloudIM/AVIMMessage.h',
       'AVOS/AVOSCloudIM/AVIMSignature.h',
       'AVOS/AVOSCloudIM/AVIMAvailability.h',
+      'AVOS/AVOSCloudIM/AVIMOptions.h',
       'AVOS/AVOSCloudIM/AVOSCloudIM.h',
       'AVOS/AVOSCloudIM/AVIMUserOptions.h'
 

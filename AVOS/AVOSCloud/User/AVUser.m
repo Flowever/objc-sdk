@@ -232,19 +232,26 @@ static BOOL enableAutomatic = NO;
 
 -(NSMutableDictionary *)userDictionary
 {
+    NSString *username = self.username;
+    NSString *password = self.password;
+    NSString *email = self.email;
+    NSString *mobilePhoneNumber = self.mobilePhoneNumber;
+
     NSMutableDictionary * parameters = [[NSMutableDictionary alloc] init];
-    if (self.username) {
-        [parameters setObject:self.username forKey:usernameTag];
+
+    if (username) {
+        [parameters setObject:username forKey:usernameTag];
     }
-    if (self.password) {
-        [parameters setObject:self.password forKey:passwordTag];
+    if (password) {
+        [parameters setObject:password forKey:passwordTag];
     }
-    if (self.email) {
-        [parameters setObject:self.email forKey:emailTag];
+    if (email) {
+        [parameters setObject:email forKey:emailTag];
     }
-    if (self.mobilePhoneNumber) {
-        [parameters setObject:self.mobilePhoneNumber forKey:mobilePhoneNumberTag];
+    if (mobilePhoneNumber) {
+        [parameters setObject:mobilePhoneNumber forKey:mobilePhoneNumberTag];
     }
+
     return parameters;
 }
 
@@ -350,6 +357,53 @@ static BOOL enableAutomatic = NO;
         }
         [AVUtils callIdResultBlock:block object:nil error:error];
     }
+}
+
+- (void)refreshSessionTokenWithBlock:(AVBooleanResultBlock)block {
+    NSString *objectId = self.objectId;
+
+    if (!objectId) {
+        NSError *error = [AVErrorUtils errorWithCode:kAVErrorUserNotFound errorText:@"User ID not found."];
+        [AVUtils callBooleanResultBlock:block error:error];
+        return;
+    }
+
+    NSString *sessionToken = self.sessionToken;
+
+    if (!sessionToken) {
+        NSError *error = [AVErrorUtils errorWithCode:kAVErrorUserCannotBeAlteredWithoutSession errorText:@"User session token not found."];
+        [AVUtils callBooleanResultBlock:block error:error];
+        return;
+    }
+
+    AVPaasClient *HTTPClient = [AVPaasClient sharedInstance];
+
+    NSDictionary *headers = @{
+        LCHeaderFieldNameSession: sessionToken
+    };
+    NSString *path = [[[[NSURL URLWithString:@"users"]
+                        URLByAppendingPathComponent:objectId]
+                        URLByAppendingPathComponent:@"refreshSessionToken"]
+                        relativePath];
+    NSMutableURLRequest *request = [HTTPClient requestWithPath:path
+                                                        method:@"PUT"
+                                                       headers:headers
+                                                    parameters:nil];
+
+    [HTTPClient performRequest:request
+                       success:^(NSHTTPURLResponse *response, id result) {
+                           self.sessionToken = result[@"sessionToken"];
+                           self.updatedAt = [AVObjectUtils dateFromString:result[@"updatedAt"]];
+
+                           if ([self isEqual:[AVUser currentUser]]) {
+                               [AVUser changeCurrentUser:self save:YES];
+                           }
+
+                           [AVUtils callBooleanResultBlock:block error:nil];
+                       }
+                       failure:^(NSHTTPURLResponse *response, id responseObject, NSError *error) {
+                           [AVUtils callBooleanResultBlock:block error:error];
+                       }];
 }
 
 +(NSDictionary *)userParameter:(NSString *)username

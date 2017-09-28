@@ -34,9 +34,10 @@ CF_EXTERN_C_BEGIN
 @class AVIMErrorCommand;
 @class AVIMJsonObjectMessage;
 @class AVIMLogItem;
-@class AVIMLoginCommand;
 @class AVIMLogsCommand;
 @class AVIMMaxReadTuple;
+@class AVIMPatchCommand;
+@class AVIMPatchItem;
 @class AVIMPresenceCommand;
 @class AVIMRcpCommand;
 @class AVIMReadCommand;
@@ -67,6 +68,10 @@ typedef GPB_ENUM(AVIMCommandType) {
   AVIMCommandType_Presence = 12,
   AVIMCommandType_Report = 13,
   AVIMCommandType_Echo = 14,
+  AVIMCommandType_Loggedin = 15,
+  AVIMCommandType_Logout = 16,
+  AVIMCommandType_Loggedout = 17,
+  AVIMCommandType_Patch = 18,
 };
 
 LCIMEnumDescriptor *AVIMCommandType_EnumDescriptor(void);
@@ -138,6 +143,10 @@ typedef GPB_ENUM(AVIMOpType) {
   /** report */
   AVIMOpType_Upload = 100,
   AVIMOpType_Uploaded = 101,
+
+  /** patch */
+  AVIMOpType_Modify = 150,
+  AVIMOpType_Modified = 151,
 };
 
 LCIMEnumDescriptor *AVIMOpType_EnumDescriptor(void);
@@ -147,23 +156,6 @@ LCIMEnumDescriptor *AVIMOpType_EnumDescriptor(void);
  * the time this source was generated.
  **/
 BOOL AVIMOpType_IsValidValue(int32_t value);
-
-#pragma mark - Enum AVIMExtendLoginCommandType
-
-typedef GPB_ENUM(AVIMExtendLoginCommandType) {
-  AVIMExtendLoginCommandType_Unknown = 0,
-  AVIMExtendLoginCommandType_Loggedin = 1,
-  AVIMExtendLoginCommandType_Logout = 2,
-  AVIMExtendLoginCommandType_Loggedout = 3,
-};
-
-LCIMEnumDescriptor *AVIMExtendLoginCommandType_EnumDescriptor(void);
-
-/**
- * Checks to see if the given value is defined by the enum or was not known at
- * the time this source was generated.
- **/
-BOOL AVIMExtendLoginCommandType_IsValidValue(int32_t value);
 
 #pragma mark - Enum AVIMStatusType
 
@@ -179,6 +171,21 @@ LCIMEnumDescriptor *AVIMStatusType_EnumDescriptor(void);
  * the time this source was generated.
  **/
 BOOL AVIMStatusType_IsValidValue(int32_t value);
+
+#pragma mark - Enum AVIMLogsCommand_QueryDirection
+
+typedef GPB_ENUM(AVIMLogsCommand_QueryDirection) {
+  AVIMLogsCommand_QueryDirection_Old = 1,
+  AVIMLogsCommand_QueryDirection_New = 2,
+};
+
+LCIMEnumDescriptor *AVIMLogsCommand_QueryDirection_EnumDescriptor(void);
+
+/**
+ * Checks to see if the given value is defined by the enum or was not known at
+ * the time this source was generated.
+ **/
+BOOL AVIMLogsCommand_QueryDirection_IsValidValue(int32_t value);
 
 #pragma mark - AVIMMessagesProtoOrigRoot
 
@@ -218,6 +225,9 @@ typedef GPB_ENUM(AVIMUnreadTuple_FieldNumber) {
   AVIMUnreadTuple_FieldNumber_Timestamp = 4,
   AVIMUnreadTuple_FieldNumber_From = 5,
   AVIMUnreadTuple_FieldNumber_Data_p = 6,
+  AVIMUnreadTuple_FieldNumber_PatchTimestamp = 7,
+  AVIMUnreadTuple_FieldNumber_Mentioned = 8,
+  AVIMUnreadTuple_FieldNumber_BinaryMsg = 9,
 };
 
 @interface AVIMUnreadTuple : LCIMMessage
@@ -244,6 +254,16 @@ typedef GPB_ENUM(AVIMUnreadTuple_FieldNumber) {
 /** Test to see if @c data_p has been set. */
 @property(nonatomic, readwrite) BOOL hasData_p;
 
+@property(nonatomic, readwrite) int64_t patchTimestamp;
+
+@property(nonatomic, readwrite) BOOL hasPatchTimestamp;
+@property(nonatomic, readwrite) BOOL mentioned;
+
+@property(nonatomic, readwrite) BOOL hasMentioned;
+@property(nonatomic, readwrite, copy, null_resettable) NSData *binaryMsg;
+/** Test to see if @c binaryMsg has been set. */
+@property(nonatomic, readwrite) BOOL hasBinaryMsg;
+
 @end
 
 #pragma mark - AVIMLogItem
@@ -255,6 +275,10 @@ typedef GPB_ENUM(AVIMLogItem_FieldNumber) {
   AVIMLogItem_FieldNumber_MsgId = 4,
   AVIMLogItem_FieldNumber_AckAt = 5,
   AVIMLogItem_FieldNumber_ReadAt = 6,
+  AVIMLogItem_FieldNumber_PatchTimestamp = 7,
+  AVIMLogItem_FieldNumber_MentionAll = 8,
+  AVIMLogItem_FieldNumber_MentionPidsArray = 9,
+  AVIMLogItem_FieldNumber_Bin = 10,
 };
 
 @interface AVIMLogItem : LCIMMessage
@@ -280,19 +304,19 @@ typedef GPB_ENUM(AVIMLogItem_FieldNumber) {
 @property(nonatomic, readwrite) int64_t readAt;
 
 @property(nonatomic, readwrite) BOOL hasReadAt;
-@end
+@property(nonatomic, readwrite) int64_t patchTimestamp;
 
-#pragma mark - AVIMLoginCommand
+@property(nonatomic, readwrite) BOOL hasPatchTimestamp;
+@property(nonatomic, readwrite) BOOL mentionAll;
 
-typedef GPB_ENUM(AVIMLoginCommand_FieldNumber) {
-  AVIMLoginCommand_FieldNumber_ExtendCmd = 1,
-};
+@property(nonatomic, readwrite) BOOL hasMentionAll;
+@property(nonatomic, readwrite, strong, null_resettable) NSMutableArray<NSString*> *mentionPidsArray;
+/** The number of items in @c mentionPidsArray without causing the array to be created. */
+@property(nonatomic, readonly) NSUInteger mentionPidsArray_Count;
 
-@interface AVIMLoginCommand : LCIMMessage
+@property(nonatomic, readwrite) BOOL bin;
 
-@property(nonatomic, readwrite) AVIMExtendLoginCommandType extendCmd;
-
-@property(nonatomic, readwrite) BOOL hasExtendCmd;
+@property(nonatomic, readwrite) BOOL hasBin;
 @end
 
 #pragma mark - AVIMDataCommand
@@ -338,6 +362,8 @@ typedef GPB_ENUM(AVIMSessionCommand_FieldNumber) {
   AVIMSessionCommand_FieldNumber_Sp = 15,
   AVIMSessionCommand_FieldNumber_Detail = 16,
   AVIMSessionCommand_FieldNumber_LastUnreadNotifTime = 17,
+  AVIMSessionCommand_FieldNumber_LastPatchTime = 18,
+  AVIMSessionCommand_FieldNumber_ConfigBitmap = 19,
 };
 
 @interface AVIMSessionCommand : LCIMMessage
@@ -404,6 +430,12 @@ typedef GPB_ENUM(AVIMSessionCommand_FieldNumber) {
 @property(nonatomic, readwrite) int64_t lastUnreadNotifTime;
 
 @property(nonatomic, readwrite) BOOL hasLastUnreadNotifTime;
+@property(nonatomic, readwrite) int64_t lastPatchTime;
+
+@property(nonatomic, readwrite) BOOL hasLastPatchTime;
+@property(nonatomic, readwrite) int64_t configBitmap;
+
+@property(nonatomic, readwrite) BOOL hasConfigBitmap;
 @end
 
 #pragma mark - AVIMErrorCommand
@@ -451,6 +483,10 @@ typedef GPB_ENUM(AVIMDirectCommand_FieldNumber) {
   AVIMDirectCommand_FieldNumber_RoomId = 15,
   AVIMDirectCommand_FieldNumber_PushData = 16,
   AVIMDirectCommand_FieldNumber_Will = 17,
+  AVIMDirectCommand_FieldNumber_PatchTimestamp = 18,
+  AVIMDirectCommand_FieldNumber_BinaryMsg = 19,
+  AVIMDirectCommand_FieldNumber_MentionPidsArray = 20,
+  AVIMDirectCommand_FieldNumber_MentionAll = 21,
 };
 
 @interface AVIMDirectCommand : LCIMMessage
@@ -509,6 +545,20 @@ typedef GPB_ENUM(AVIMDirectCommand_FieldNumber) {
 @property(nonatomic, readwrite) BOOL will;
 
 @property(nonatomic, readwrite) BOOL hasWill;
+@property(nonatomic, readwrite) int64_t patchTimestamp;
+
+@property(nonatomic, readwrite) BOOL hasPatchTimestamp;
+@property(nonatomic, readwrite, copy, null_resettable) NSData *binaryMsg;
+/** Test to see if @c binaryMsg has been set. */
+@property(nonatomic, readwrite) BOOL hasBinaryMsg;
+
+@property(nonatomic, readwrite, strong, null_resettable) NSMutableArray<NSString*> *mentionPidsArray;
+/** The number of items in @c mentionPidsArray without causing the array to be created. */
+@property(nonatomic, readonly) NSUInteger mentionPidsArray_Count;
+
+@property(nonatomic, readwrite) BOOL mentionAll;
+
+@property(nonatomic, readwrite) BOOL hasMentionAll;
 @end
 
 #pragma mark - AVIMAckCommand
@@ -779,7 +829,9 @@ typedef GPB_ENUM(AVIMLogsCommand_FieldNumber) {
   AVIMLogsCommand_FieldNumber_Mid = 7,
   AVIMLogsCommand_FieldNumber_Checksum = 8,
   AVIMLogsCommand_FieldNumber_Stored = 9,
-  AVIMLogsCommand_FieldNumber_Reversed = 10,
+  AVIMLogsCommand_FieldNumber_Direction = 10,
+  AVIMLogsCommand_FieldNumber_TIncluded = 11,
+  AVIMLogsCommand_FieldNumber_TtIncluded = 12,
   AVIMLogsCommand_FieldNumber_LogsArray = 105,
 };
 
@@ -816,9 +868,15 @@ typedef GPB_ENUM(AVIMLogsCommand_FieldNumber) {
 @property(nonatomic, readwrite) BOOL stored;
 
 @property(nonatomic, readwrite) BOOL hasStored;
-@property(nonatomic, readwrite) BOOL reversed;
+@property(nonatomic, readwrite) AVIMLogsCommand_QueryDirection direction;
 
-@property(nonatomic, readwrite) BOOL hasReversed;
+@property(nonatomic, readwrite) BOOL hasDirection;
+@property(nonatomic, readwrite) BOOL tIncluded;
+
+@property(nonatomic, readwrite) BOOL hasTIncluded;
+@property(nonatomic, readwrite) BOOL ttIncluded;
+
+@property(nonatomic, readwrite) BOOL hasTtIncluded;
 @property(nonatomic, readwrite, strong, null_resettable) NSMutableArray<AVIMLogItem*> *logsArray;
 /** The number of items in @c logsArray without causing the array to be created. */
 @property(nonatomic, readonly) NSUInteger logsArray_Count;
@@ -967,6 +1025,79 @@ typedef GPB_ENUM(AVIMReportCommand_FieldNumber) {
 
 @end
 
+#pragma mark - AVIMPatchItem
+
+typedef GPB_ENUM(AVIMPatchItem_FieldNumber) {
+  AVIMPatchItem_FieldNumber_Cid = 1,
+  AVIMPatchItem_FieldNumber_Mid = 2,
+  AVIMPatchItem_FieldNumber_Timestamp = 3,
+  AVIMPatchItem_FieldNumber_Recall = 4,
+  AVIMPatchItem_FieldNumber_Data_p = 5,
+  AVIMPatchItem_FieldNumber_PatchTimestamp = 6,
+  AVIMPatchItem_FieldNumber_From = 7,
+  AVIMPatchItem_FieldNumber_BinaryMsg = 8,
+  AVIMPatchItem_FieldNumber_MentionAll = 9,
+  AVIMPatchItem_FieldNumber_MentionPidsArray = 10,
+};
+
+@interface AVIMPatchItem : LCIMMessage
+
+@property(nonatomic, readwrite, copy, null_resettable) NSString *cid;
+/** Test to see if @c cid has been set. */
+@property(nonatomic, readwrite) BOOL hasCid;
+
+@property(nonatomic, readwrite, copy, null_resettable) NSString *mid;
+/** Test to see if @c mid has been set. */
+@property(nonatomic, readwrite) BOOL hasMid;
+
+@property(nonatomic, readwrite) int64_t timestamp;
+
+@property(nonatomic, readwrite) BOOL hasTimestamp;
+@property(nonatomic, readwrite) BOOL recall;
+
+@property(nonatomic, readwrite) BOOL hasRecall;
+@property(nonatomic, readwrite, copy, null_resettable) NSString *data_p;
+/** Test to see if @c data_p has been set. */
+@property(nonatomic, readwrite) BOOL hasData_p;
+
+@property(nonatomic, readwrite) int64_t patchTimestamp;
+
+@property(nonatomic, readwrite) BOOL hasPatchTimestamp;
+@property(nonatomic, readwrite, copy, null_resettable) NSString *from;
+/** Test to see if @c from has been set. */
+@property(nonatomic, readwrite) BOOL hasFrom;
+
+@property(nonatomic, readwrite, copy, null_resettable) NSData *binaryMsg;
+/** Test to see if @c binaryMsg has been set. */
+@property(nonatomic, readwrite) BOOL hasBinaryMsg;
+
+@property(nonatomic, readwrite) BOOL mentionAll;
+
+@property(nonatomic, readwrite) BOOL hasMentionAll;
+@property(nonatomic, readwrite, strong, null_resettable) NSMutableArray<NSString*> *mentionPidsArray;
+/** The number of items in @c mentionPidsArray without causing the array to be created. */
+@property(nonatomic, readonly) NSUInteger mentionPidsArray_Count;
+
+@end
+
+#pragma mark - AVIMPatchCommand
+
+typedef GPB_ENUM(AVIMPatchCommand_FieldNumber) {
+  AVIMPatchCommand_FieldNumber_PatchesArray = 1,
+  AVIMPatchCommand_FieldNumber_LastPatchTime = 2,
+};
+
+@interface AVIMPatchCommand : LCIMMessage
+
+@property(nonatomic, readwrite, strong, null_resettable) NSMutableArray<AVIMPatchItem*> *patchesArray;
+/** The number of items in @c patchesArray without causing the array to be created. */
+@property(nonatomic, readonly) NSUInteger patchesArray_Count;
+
+@property(nonatomic, readwrite) int64_t lastPatchTime;
+
+@property(nonatomic, readwrite) BOOL hasLastPatchTime;
+@end
+
 #pragma mark - AVIMGenericCommand
 
 typedef GPB_ENUM(AVIMGenericCommand_FieldNumber) {
@@ -978,7 +1109,6 @@ typedef GPB_ENUM(AVIMGenericCommand_FieldNumber) {
   AVIMGenericCommand_FieldNumber_InstallationId = 6,
   AVIMGenericCommand_FieldNumber_Priority = 7,
   AVIMGenericCommand_FieldNumber_Service = 8,
-  AVIMGenericCommand_FieldNumber_LoginMessage = 100,
   AVIMGenericCommand_FieldNumber_DataMessage = 101,
   AVIMGenericCommand_FieldNumber_SessionMessage = 102,
   AVIMGenericCommand_FieldNumber_ErrorMessage = 103,
@@ -992,6 +1122,7 @@ typedef GPB_ENUM(AVIMGenericCommand_FieldNumber) {
   AVIMGenericCommand_FieldNumber_RoomMessage = 111,
   AVIMGenericCommand_FieldNumber_PresenceMessage = 112,
   AVIMGenericCommand_FieldNumber_ReportMessage = 113,
+  AVIMGenericCommand_FieldNumber_PatchMessage = 114,
 };
 
 @interface AVIMGenericCommand : LCIMMessage
@@ -1023,10 +1154,6 @@ typedef GPB_ENUM(AVIMGenericCommand_FieldNumber) {
 @property(nonatomic, readwrite) int32_t service;
 
 @property(nonatomic, readwrite) BOOL hasService;
-@property(nonatomic, readwrite, strong, null_resettable) AVIMLoginCommand *loginMessage;
-/** Test to see if @c loginMessage has been set. */
-@property(nonatomic, readwrite) BOOL hasLoginMessage;
-
 @property(nonatomic, readwrite, strong, null_resettable) AVIMDataCommand *dataMessage;
 /** Test to see if @c dataMessage has been set. */
 @property(nonatomic, readwrite) BOOL hasDataMessage;
@@ -1078,6 +1205,10 @@ typedef GPB_ENUM(AVIMGenericCommand_FieldNumber) {
 @property(nonatomic, readwrite, strong, null_resettable) AVIMReportCommand *reportMessage;
 /** Test to see if @c reportMessage has been set. */
 @property(nonatomic, readwrite) BOOL hasReportMessage;
+
+@property(nonatomic, readwrite, strong, null_resettable) AVIMPatchCommand *patchMessage;
+/** Test to see if @c patchMessage has been set. */
+@property(nonatomic, readwrite) BOOL hasPatchMessage;
 
 @end
 
