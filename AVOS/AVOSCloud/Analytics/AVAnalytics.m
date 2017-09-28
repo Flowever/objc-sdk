@@ -245,5 +245,8 @@ static NSString * currentSessionId;
     }];
 }
 
++ (void)sendSessions {
+    [[AVAnalyticsImpl sharedInstance] sendSessions];
+}
 
 @end

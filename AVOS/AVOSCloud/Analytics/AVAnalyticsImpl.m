@@ -64,7 +64,11 @@ static NSString *const kAVOnlineConfig = @"AVOS_ONLINE_CONFIG";
     _sendInterval = AV_DEFAULT_REPORT_INTERVAL;
     _enableDebugLog = NO;
 //    _enableCrashReport = YES;
-    _reportPolicy = AV_SEND_INTERVAL;
+//    _reportPolicy = AV_SEND_INTERVAL;
+    
+    // 默认为 BATCH 模式
+    _reportPolicy = AV_BATCH;
+    
     _enableReport = YES;
     _enableAnalytics = YES;
     

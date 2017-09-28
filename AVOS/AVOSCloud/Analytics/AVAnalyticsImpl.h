@@ -68,4 +68,6 @@
 
 - (void)stopRun;
 
+- (void)sendSessions;
+
 @end

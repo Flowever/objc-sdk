@@ -325,6 +325,13 @@ NS_ASSUME_NONNULL_BEGIN
  *  @warning info的内容只支持数字和字符串
  */
 + (void)setCustomInfo:(nullable NSDictionary*)info;
+
+
+/**
+ 发送统计数据
+ */
++ (void)sendSessions;
+
 @end
 
 NS_ASSUME_NONNULL_END
